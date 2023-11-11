@@ -13,8 +13,10 @@ from webdriver_manager.chrome import ChromeDriverManager
 # contextmanager
 from typing import Generator
 from contextlib import contextmanager
+from injector import singleton
 
-class ChromeCore():    
+@singleton
+class ChromeCore():
     
     __chromeOption: Options
     __chromeService: ChromeService
@@ -30,7 +32,7 @@ class ChromeCore():
         self.__chromeService = ChromeService(executable_path=chromeDriverPath)
     
     @contextmanager
-    def executeChromeDriver(self) -> Generator[WebDriver, None, None]:
+    def getChromeDriver(self) -> Generator[WebDriver, None, None]:
         self.chromeDriver = webdriver.Chrome(service=self.__chromeService,
                                 options=self.__chromeOption)
         try:
@@ -42,6 +44,3 @@ class ChromeCore():
                 and isinstance(self.chromeDriver, WebDriver)
             ):
                 self.chromeDriver.quit()
-                
-# with ChromeCore().executeChromeDriver() as driver:
-#     print(driver)
