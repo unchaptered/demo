@@ -1,7 +1,7 @@
 
 # Enums
-from enums.e_html_tag_sub_regexp import EHTML_TAG_SUB_REGEXP
-from enums.e_html_tag_extract_regexp import EHTML_TAG_EXTRACT_REGEXP
+from common.enums.core.e_html_tag_sub_regexp import EHTML_TAG_SUB_REGEXP
+from common.enums.core.e_html_tag_extract_regexp import EHTML_TAG_EXTRACT_REGEXP
 
 # Functions
 import utilities.regexp_utils as regexpUtils
