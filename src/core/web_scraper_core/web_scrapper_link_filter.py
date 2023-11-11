@@ -20,16 +20,15 @@ class WebScrapperLinkFilter:
     def __extractPureLink__(self, link: str) -> str:
         """ '/', '#', '?' 등의 식별자 후행 제거"""
         identifierIndexList = []
-        identifierIndexList.append(link[0].find('/'))
-        identifierIndexList.append(link[0].find('#'))
-        identifierIndexList.append(link[0].find('?'))
+        identifierIndexList.append(link.find('/'))
+        identifierIndexList.append(link.find('#'))
+        identifierIndexList.append(link.find('?'))
         identifierIndexList = list(filter(lambda x: x >= 0, identifierIndexList))
         
         if len(identifierIndexList) == 0:
-            return link[0]
+            return link
         
-        return link[0][:min(identifierIndexList)]
-
+        return link[:min(identifierIndexList)]
     
     def __extractInternalLink__(self,
                             link: str) -> str:
@@ -56,16 +55,17 @@ class WebScrapperLinkFilter:
         
         if len(httpLink) > 0:
             if httpLink[0] != '':
-                identifierIndexList = []
-                identifierIndexList.append(httpLink[0].find('/'))
-                identifierIndexList.append(httpLink[0].find('#'))
-                identifierIndexList.append(httpLink[0].find('?'))
-                identifierIndexList = list(filter(lambda x: x >= 0, identifierIndexList))
+                return self.__extractPureLink__(link=httpLink[0])
+                # identifierIndexList = []
+                # identifierIndexList.append(httpLink[0].find('/'))
+                # identifierIndexList.append(httpLink[0].find('#'))
+                # identifierIndexList.append(httpLink[0].find('?'))
+                # identifierIndexList = list(filter(lambda x: x >= 0, identifierIndexList))
                 
-                if len(identifierIndexList) == 0:
-                    return httpLink[0]
+                # if len(identifierIndexList) == 0:
+                #     return httpLink[0]
                 
-                return httpLink[0][:min(identifierIndexList)]
+                # return httpLink[0][:min(identifierIndexList)]
             return None
         return None
     
