@@ -12,12 +12,16 @@ from core.web_scraper_core.web_scraper_core import WebScraperCore, WebScrapperDe
 webScrapperCore = WebScraperCore(ChromeCore(),
                                  WebScrapperRegexpParser(),
                                  WebScrapperLinkFilter())
-webScrapperCore.recursiveScrapping(**{
+webScrapperCore.recursiveScrapWrapper(**{
     'originUrl':'http://wfwf297.com',
     'parentUrl': 'http://wfwf297.com',
     'nowUrl': 'http://wfwf297.com',
-    'domain': WebScrapperDomainOption.ONLY_DOMAIN,
-    'maxDepth': WebScrapperDepthOption.THREE
+    
+    'nowDepth': 0,
+    'maxDepth': WebScrapperDepthOption.ONE,
+    
+    'originDomain': 'wfwf297.com',
+    'domainOption': WebScrapperDomainOption.ONLY_DOMAIN,
 })
 
 # chromeCore= WebScraperCore()
