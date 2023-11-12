@@ -1,20 +1,25 @@
 # Selenium 모듈 설치
 # pip install selenium
+import asyncio
+
 from core.chrome.chrome_core import ChromeCore
 from core.web_scraper_core.web_scrapper_link_filter import WebScrapperLinkFilter
 from core.web_scraper_core.web_scarpper_regexp_parser import WebScrapperRegexpParser
 
 from core.web_scraper_core.web_scraper_core import WebScraperCore, WebScrapperDepthOption, WebScrapperDomainOption
 
+from modules.providers.database_provider import DatabaseProvider
+
 # import core.web_scraper_core.parser.recursive_parser as RecursiveParser
 # import core.web_scraper_core.parser.regexp_parser as RegexpParser
 
 webScrapperCore = WebScraperCore(ChromeCore(),
-                                 WebScrapperRegexpParser(),
-                                 WebScrapperLinkFilter())
-webScrapperCore.recursiveScrapWrapper(**{
+                                WebScrapperRegexpParser(),
+                                WebScrapperLinkFilter(),
+                                DatabaseProvider())
+asyncio.run(webScrapperCore.recursiveScrapWrapper(**{
     'originUrl':'http://wfwf297.com',
-    'parentUrl': 'http://wfwf297.com',
+    'parentUrl': 'null22',
     'nowUrl': 'http://wfwf297.com',
     
     'nowDepth': 0,
@@ -22,7 +27,9 @@ webScrapperCore.recursiveScrapWrapper(**{
     
     'originDomain': 'wfwf297.com',
     'domainOption': WebScrapperDomainOption.ONLY_DOMAIN,
-})
+}))
+
+
 
 # chromeCore= WebScraperCore()
 # with chromeCore.executeChromeDriver() as driver:

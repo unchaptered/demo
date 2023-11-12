@@ -1,0 +1,36 @@
+// prisma db push
+datasource db {
+  provider = "sqlite"
+  url      = "file:demo.db"
+}
+
+generator db {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client" // Prisma 클라이언트 코드를 생성할 경로
+}
+
+model WebsiteDocument  {
+  @@id([ routinId, originUrl, parentUrl, nowUrl ])
+  routinId     Int
+
+  originUrl    String     // @db.varchar(255)
+  parentUrl    String     // @db.varchar(255)
+  nowUrl       String     // @db.varchar(255)
+
+  nowDepth     Int
+  maxDepth     Int
+
+  originDomain String     // @db.varchar(255)
+
+  domainType   Int        // @db.varchar(255)
+  domainOption Int        // @db.varchar(255)
+
+  isScrapped   Boolean    @default(false)
+  scrappedHtml String?
+}

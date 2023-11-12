@@ -9,6 +9,8 @@ import core.web_scraper_core.options.depth_option as WebScrapperDepthOption
 import core.web_scraper_core.options.domain_option as WebScrapperDomainOption
 
 class WebScrapperLink:
+    routinId: int
+    
     originUrl: str
     parentUrl: str
     nowUrl: str
@@ -22,10 +24,11 @@ class WebScrapperLink:
     
     def __init__(self,
                  *,
+                 routinId: int,
+                 
                  originUrl: str,
                  parentUrl: str,
                  nowUrl: str,
-                 nextUrl: str,
                  
                  nowDepth: int,
                  maxDepth: WebScrapperDomainOption,
@@ -33,10 +36,11 @@ class WebScrapperLink:
                  originDomain: str, 
                  domainOption: WebScrapperDomainOption) -> None:
         
+        self.routinId = routinId
+        
         self.originUrl = originUrl
         self.parentUrl = parentUrl
         self.nowUrl = nowUrl
-        self.nextUrl = nextUrl
         
         self.nowDepth = nowDepth
         self.maxDepth = maxDepth
@@ -48,7 +52,7 @@ class WebScrapperLink:
         
         # self.domainType 
     def __evaluateDomainType__(self) -> None:
-        search = re.search(pattern=rf'({self.originDomain})', string=self.nextUrl[7:])
+        search = re.search(pattern=rf'({self.originDomain})', string=self.nowUrl[7:])
         if search is None:
             self.domainType = EDOMAIN_TYPE.OTHER_DOMAIN
             return
@@ -75,7 +79,33 @@ class WebScrapperLink:
                 return True
             return False
         
-        return False
+        return 
+    
+    def convertDict(self,
+                    isScrapped: bool = False,
+                    scrappedHtml: str = None) -> dict:
+        return {
+            'routinId': self.routinId,
+            
+            'originUrl': self.originUrl,
+            'parentUrl': self.parentUrl,
+            'nowUrl': self.nowUrl,
+            
+            'nowDepth': self.nowDepth,
+            'maxDepth': self.maxDepth,
+            
+            'originDomain': self.originDomain,
+            
+            'domainType': self.domainType.value,
+            'domainOption': self.domainOption,
+            
+            'isScrapped': isScrapped,
+            'scrappedHtml': scrappedHtml,
+        }
+        
+    def convertFlattenList(self) -> dict:
+        return tuple(self.convertDict().values())
+        
 
 @singleton
 class WebScrapperLinkFilter:
@@ -169,6 +199,8 @@ class WebScrapperLinkFilter:
     
     def filter(self,
                *,
+               routinId: int,
+               
                originUrl: str,
                parentUrl: str,
                nowUrl: str,
@@ -195,34 +227,36 @@ class WebScrapperLinkFilter:
         webScrapperLinks: List[WebScrapperLink] = []
         for link in pureInternalLinks:
             nextUrl=f'{originUrl}/{link}'
-            webScrapperLinks.append(WebScrapperLink(originUrl=originUrl,
-                                                    parentUrl=parentUrl,
-                                                    nowUrl=nowUrl,
-                                                    nextUrl=nextUrl,
+            webScrapperLinks.append(WebScrapperLink(routinId=routinId,
+                                                    originUrl=originUrl,
+                                                    parentUrl=nowUrl,
+                                                    nowUrl=nextUrl,
                                                     
-                                                    nowDepth=nowDepth,
+                                                    nowDepth=nowDepth + 1,
                                                     maxDepth=maxDepth,
                                                     
                                                     originDomain=originDomain,
                                                     domainOption=domainOption))
         for link in pureExternalLinks:
             nextUrl = f'http://{link}'
-            webScrapperLinks.append(WebScrapperLink(originUrl=originUrl,
-                                                    parentUrl=parentUrl,
-                                                    nowUrl=nowUrl,
-                                                    nextUrl=nextUrl,
+            webScrapperLinks.append(WebScrapperLink(routinId=routinId,
                                                     
-                                                    nowDepth=nowDepth,
+                                                    originUrl=originUrl,
+                                                    parentUrl=nowUrl,
+                                                    nowUrl=nextUrl,
+                                                    
+                                                    nowDepth=nowDepth + 1,
                                                     maxDepth=maxDepth,
                                                     
                                                     originDomain=originDomain,
                                                     domainOption=domainOption))
-        webScrapperLinks.append(WebScrapperLink(originUrl=originUrl,
-                                    parentUrl=parentUrl,
-                                    nowUrl=nowUrl,
-                                    nextUrl='http://web.wfwf297.com/hllo',
+        webScrapperLinks.append(WebScrapperLink(routinId=routinId,
+                                                
+                                    originUrl=originUrl,
+                                    parentUrl=nowUrl,
+                                    nowUrl='http://web.wfwf297.com/hllo',
                                     
-                                    nowDepth=nowDepth,
+                                    nowDepth=nowDepth + 1,
                                     maxDepth=maxDepth,
                                     
                                     originDomain=originDomain,

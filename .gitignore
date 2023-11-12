@@ -1,3 +1,10 @@
+# Python
 __pycache__
 
+# Prisma
+generated
+node_modules
+demo.db
+
+# Output (sample)
 *.html
