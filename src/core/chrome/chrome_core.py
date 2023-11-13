@@ -25,7 +25,7 @@ class ChromeCore():
     def __init__(self) -> None:
         self.__chromeOption = Options()
         self.__chromeOption.add_argument('--incognito')
-        # chrome_options.add_argument('--headless')  # 브라우저 창을 띄우지 않고 실행 (백그라운드 실행)
+        # self.__chromeOption.add_argument('--headless')  # 브라우저 창을 띄우지 않고 실행 (백그라운드 실행)
 
         chromeDriverPath = ChromeDriverManager().install()
         

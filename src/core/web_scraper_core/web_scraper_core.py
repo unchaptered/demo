@@ -46,8 +46,8 @@ class WebScraperCore():
         driver.get(nowUrl)
         driver.implicitly_wait(3)
         
-        import time
-        time.sleep(5)
+        # import time
+        # time.sleep(5)
         
         originHtml = driver.page_source
                 
@@ -117,8 +117,9 @@ class WebScraperCore():
             #     ],
             #     skip_duplicates=True
             # )
-            print('[CHLID]', len(webScrapperLinks))
+            # print('[CHLID]', len(webScrapperLinks))
             for wLink in webScrapperLinks:
+                print('[❌❌]', wLink.convertDict())
 
                 await txPrisma.websitedocument.upsert(
                     where={
