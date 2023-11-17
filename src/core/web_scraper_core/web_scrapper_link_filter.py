@@ -34,7 +34,10 @@ class WebScrapperLink:
                  maxDepth: WebScrapperDomainOption,
                 
                  originDomain: str, 
-                 domainOption: WebScrapperDomainOption) -> None:
+                 domainOption: WebScrapperDomainOption,
+                 
+                 isScrapped: bool = False,
+                 scrappedHtml: Optional[str] = None) -> None:
         
         self.routinId = routinId
         
@@ -47,6 +50,9 @@ class WebScrapperLink:
         
         self.originDomain = originDomain
         self.domainOption = domainOption
+        
+        self.isScrapped = isScrapped
+        self.scrappedHtml = scrappedHtml
         
         self.__evaluateDomainType__()
         
@@ -79,11 +85,15 @@ class WebScrapperLink:
                 return True
             return False
         
-        return 
+        return
     
-    def convertDict(self,
-                    isScrapped: bool = False,
-                    scrappedHtml: str = None) -> dict:
+    def setScrappedHtml(self,
+                *,
+                scrappedHtml: Optional[str]):
+        self.isScrapped = True
+        self.scrappedHtml = scrappedHtml
+    
+    def convertDict(self) -> dict:
         return {
             'routinId': self.routinId,
             
@@ -99,8 +109,8 @@ class WebScrapperLink:
             'domainType': self.domainType.value,
             'domainOption': self.domainOption,
             
-            'isScrapped': isScrapped,
-            'scrappedHtml': scrappedHtml,
+            'isScrapped': self.isScrapped,
+            'scrappedHtml': self.scrappedHtml
         }
         
     def convertFlattenList(self) -> dict:

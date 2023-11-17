@@ -32,6 +32,45 @@ class WebScraperCore():
               driver: WebDriver,
               orgWebScrapperLink: WebScrapperLink):
         
+        if orgWebScrapperLink.nowDepth > orgWebScrapperLink.maxDepth:
+            return
+        
+        prisma = self.databaseProvider.getPrisma()
+        await prisma.connect()
+        isAlreadyScrappedWebDocs = await prisma.websitedocument.find_first(
+            where={
+                'routinId': orgWebScrapperLink.routinId,
+                'originUrl': orgWebScrapperLink.originUrl,
+                'nowUrl': orgWebScrapperLink.nowUrl,
+                'parentUrl': {
+                    'not': orgWebScrapperLink.parentUrl
+                },
+                'OR': [
+                    { 'isScrapped': True },
+                    { 'isAlreadyScrapped': True },
+                ],
+
+                # 'isScrapped': True,
+                # 'isAlreadyScrapped': True
+            }
+        )
+        if isAlreadyScrappedWebDocs is not None:
+            await prisma.websitedocument.update(
+                where={
+                    'routinId': orgWebScrapperLink.routinId,
+                    'originUrl': orgWebScrapperLink.originUrl,
+                    'nowUrl': orgWebScrapperLink.nowUrl,
+                    'parentUrl': orgWebScrapperLink.parentUrl 
+                },
+                data={
+                    'isAlreadyScrapped': True
+                }
+            )
+        
+        
+        # parentUrl은 다른데 nowUrl이 같은 경우,
+        # isAlreadyScrapped 값을 1로 올리고 탐색 대상에서 제외하는 것이 합당해 보인다...
+        
         routinId = orgWebScrapperLink.routinId
         originUrl = orgWebScrapperLink.originUrl
         parentUrl = orgWebScrapperLink.parentUrl
@@ -41,24 +80,23 @@ class WebScraperCore():
         originDomain = orgWebScrapperLink.originDomain
         domainOption = orgWebScrapperLink.domainOption
         
-        print('[🤔🤔]', orgWebScrapperLink.convertDict())
-        
         driver.get(nowUrl)
         driver.implicitly_wait(3)
-        
-        # import time
-        # time.sleep(5)
         
         originHtml = driver.page_source
                 
         titles, internalLinks, externalLinks = self.webScrapperRegexpParser.convertUsableMetaData(originHtml=originHtml)
         filteredHtml = self.webScrapperRegexpParser.convertUsableHtmlFormat(originHtml=originHtml)
         
+        orgWebScrapperLink.setScrappedHtml(scrappedHtml=filteredHtml)
+        # print('[🤔🤔]', orgWebScrapperLink.convertDict())
+        print('[🤔🤔]', orgWebScrapperLink.routinId, orgWebScrapperLink.parentUrl, orgWebScrapperLink.nowUrl, orgWebScrapperLink.nowDepth)
+        
         # [RECORD] 현재 페이지 탐색 결과 저장
         prisma = self.databaseProvider.getPrisma()
         await prisma.connect()
         async with prisma.tx() as txPrisma:
-            await txPrisma.websitedocument.upsert(
+            await prisma.websitedocument.upsert(
                 where={
                     'routinId_originUrl_parentUrl_nowUrl':  {
                         'routinId': routinId,
@@ -68,8 +106,7 @@ class WebScraperCore():
                     }
                 },
                 data={
-                    'create': orgWebScrapperLink.convertDict(isScrapped=True,
-                                                             scrappedHtml=filteredHtml),
+                    'create': orgWebScrapperLink.convertDict(),
                     'update': {                        
                         'nowDepth': orgWebScrapperLink.nowDepth,
                         'maxDepth': orgWebScrapperLink.maxDepth,
@@ -79,8 +116,8 @@ class WebScraperCore():
                         'domainType': orgWebScrapperLink.domainType.value,
                         'domainOption': orgWebScrapperLink.domainOption,
                         
-                        'isScrapped': True,
-                        'scrappedHtml': filteredHtml
+                        'isScrapped': orgWebScrapperLink.isScrapped,
+                        'scrappedHtml': orgWebScrapperLink.scrappedHtml
                     },
                 }
             )
@@ -119,38 +156,36 @@ class WebScraperCore():
             # )
             # print('[CHLID]', len(webScrapperLinks))
             for wLink in webScrapperLinks:
-                print('[❌❌]', wLink.convertDict())
-
+                # print('[❌❌]', wLink.convertDict())
+                print('[❌❌]', wLink.routinId, wLink.parentUrl, wLink.nowUrl, wLink.nowDepth)
                 await txPrisma.websitedocument.upsert(
                     where={
                         'routinId_originUrl_parentUrl_nowUrl':  {
                             'routinId': routinId,
-                            'originUrl': orgWebScrapperLink.originUrl,
-                            'parentUrl': orgWebScrapperLink.parentUrl,
-                            'nowUrl': orgWebScrapperLink.nowUrl,
+                            'originUrl': wLink.originUrl,
+                            'parentUrl': wLink.parentUrl,
+                            'nowUrl': wLink.nowUrl,
                         }
                     },
                     data={
-                        'create': wLink.convertDict(isScrapped=False,
-                                                    scrappedHtml=None),
+                        'create': wLink.convertDict(),
                         'update': {
-                            'nowDepth': orgWebScrapperLink.nowDepth,
-                            'maxDepth': orgWebScrapperLink.maxDepth,
+                            'nowDepth': wLink.nowDepth,
+                            'maxDepth': wLink.maxDepth,
                             
-                            'originDomain': orgWebScrapperLink.originDomain,
+                            'originDomain': wLink.originDomain,
                             
-                            'domainType': orgWebScrapperLink.domainType.value,
-                            'domainOption': orgWebScrapperLink.domainOption,
+                            'domainType': wLink.domainType.value,
+                            'domainOption': wLink.domainOption,
                             
-                            'isScrapped': False,
-                            'scrappedHtml': None
+                            # 중복 탐색에 걸릴 경우 어떻게 할 건지 모르곘음...
+                            # 'isScrapped': False,
+                            # 'scrappedHtml': None
                         },
                     }
                 )
         await prisma.disconnect()
         
-        if nowDepth > maxDepth:
-            return
         
         for wLink in webScrapperLinks:
             await self.recursiveScrap(driver=driver,

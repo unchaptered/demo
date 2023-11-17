@@ -1,0 +1,55 @@
+# 데모 집계용 쿼리 (진행률)
+SELECT 
+    SUM(scrappedCount) as totalScrappedCount, 
+    SUM(unscrappedCount) as totalUnscrappedCount,
+
+	CAST(
+		SUM(scrappedCount) * 10000 / (SUM(scrappedCount) + SUM(unscrappedCount))
+		AS DECIMAL(10,2)
+	) || ' 만분율' as totalScrappedPercentage,
+	CAST(
+		SUM(unscrappedCount) * 10000 / (SUM(scrappedCount) + SUM(unscrappedCount))
+		AS DECIMAL(10,2)
+	) || ' 만분율'  as totalUnscrappedPercentage
+
+FROM (
+
+   SELECT 	0 				as scrappedCount,
+   			COUNT(routinId) as unscrappedCount
+   FROM 	WebsiteDocument
+   WHERE 	routinId	=	32
+   AND 		isScrapped 	= 	0
+   AND      nowDepth    <=  maxDepth
+   GROUP BY routinId 
+
+   UNION ALL
+
+   SELECT 	COUNT(routinId) as scrappedCount,
+   			0 				as unscrappedCount
+   FROM 	WebsiteDocument
+   WHERE 	routinId	=	32
+   AND 		isScrapped 	= 	1
+   AND      nowDepth    <=  maxDepth
+   GROUP BY routinId
+
+) as subquery;
+
+
+# 데모 집계용 쿼리 (전체)
+SELECT 
+    SUM(scrappedCount) as totalScrappedCount, 
+    SUM(unscrappedCount) as totalUnscrappedCount,
+
+	CAST(
+		SUM(scrappedCount) * 10000 / (SUM(scrappedCount) + SUM(unscrappedCount))
+		AS DECIMAL(10,2)
+	) || ' 만분율' as totalScrappedPercentage,
+	CAST(
+		SUM(unscrappedCount) * 10000 / (SUM(scrappedCount) + SUM(unscrappedCount))
+		AS DECIMAL(10,2)
+	) || ' 만분율'  as totalUnscrappedPercentage
+FROM (
+   SELECT 0 as scrappedCount, COUNT(routinId) as unscrappedCount FROM WebsiteDocument WHERE routinId=32 AND isScrapped = 0 GROUP BY routinId 
+   UNION ALL
+   SELECT COUNT(routinId) as scrappedCount, 0 as unscrappedCount FROM WebsiteDocument WHERE routinId=32 AND isScrapped = 1 GROUP BY routinId
+) as subquery;
