@@ -15,22 +15,66 @@ generator client {
   output   = "./generated/client" // Prisma 클라이언트 코드를 생성할 경로
 }
 
-model WebsiteDocument  {
-  @@id([ routinId, originUrl, parentUrl, nowUrl ])
-  routinId     Int
+model WebsiteDocument {
+  routinId Int
 
-  originUrl    String     // @db.varchar(255)
-  parentUrl    String     // @db.varchar(255)
-  nowUrl       String     // @db.varchar(255)
+  originUrl String // @db.varchar(255)
+  parentUrl String // @db.varchar(255)
+  nowUrl    String // @db.varchar(255)
 
-  nowDepth     Int
-  maxDepth     Int
+  nowDepth Int
+  maxDepth Int
 
-  originDomain String     // @db.varchar(255)
+  originDomain String // @db.varchar(255)
 
-  domainType   Int        // @db.varchar(255)
-  domainOption Int        // @db.varchar(255)
+  domainType   Int // @db.varchar(255)
+  domainOption Int // @db.varchar(255)
 
-  isScrapped   Boolean    @default(false)
+  isScrapped        Boolean @default(false)
+  isAlreadyScrapped Boolean @default(false)
+
+  isIndexed        Boolean @default(false)
+  isAlreadyIndexed Boolean @default(false)
+
   scrappedHtml String?
+
+  @@id([routinId, originUrl, parentUrl, nowUrl])
+}
+
+model WebsiteIndexingDocument {
+  id        Int    @id
+  routinId  Int
+  originUrl String
+  parentUrl String
+  nowUrl    String
+
+  websiteLink  WebsiteLink[]
+  WebsiteImage WebsiteImage[]
+  WebsiteVideo WebsiteVideo[]
+
+  @@unique([routinId, originUrl, parentUrl, nowUrl])
+}
+
+model WebsiteLink {
+  id      Int                     @id
+  indexId WebsiteIndexingDocument @relation(fields: [id], references: [id])
+
+  linkType  String // ROOT_DOMAIN, SUB_DOMAIN, OTHER_DOMAIN
+  linkValue String // https://~
+}
+
+model WebsiteImage {
+  id      Int                     @id
+  indexId WebsiteIndexingDocument @relation(fields: [id], references: [id])
+
+  linkType  String // CONTENT, THUMBNAIL, AD_BANNER
+  linkValue String // https://~
+}
+
+model WebsiteVideo {
+  id      Int                     @id
+  indexId WebsiteIndexingDocument @relation(fields: [id], references: [id])
+
+  linkType  String // Content
+  linkValue String // https://~
 }
