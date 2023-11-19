@@ -66,7 +66,7 @@ class WebScraperCore():
                     'isAlreadyScrapped': True
                 }
             )
-        
+        await prisma.disconnect()
         
         # parentUrl은 다른데 nowUrl이 같은 경우,
         # isAlreadyScrapped 값을 1로 올리고 탐색 대상에서 제외하는 것이 합당해 보인다...
@@ -99,7 +99,7 @@ class WebScraperCore():
             await prisma.websitedocument.upsert(
                 where={
                     'routinId_originUrl_parentUrl_nowUrl':  {
-                        'routinId': routinId,
+                        'routinId': orgWebScrapperLink.routinId,
                         'originUrl': orgWebScrapperLink.originUrl,
                         'parentUrl': orgWebScrapperLink.parentUrl,
                         'nowUrl': orgWebScrapperLink.nowUrl,

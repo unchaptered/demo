@@ -42,7 +42,7 @@ model WebsiteDocument {
 }
 
 model WebsiteIndexingDocument {
-  id        Int    @id
+  id        Int    @id @default(autoincrement())
   routinId  Int
   originUrl String
   parentUrl String
@@ -56,25 +56,33 @@ model WebsiteIndexingDocument {
 }
 
 model WebsiteLink {
-  id      Int                     @id
-  indexId WebsiteIndexingDocument @relation(fields: [id], references: [id])
+  id      Int @id @default(autoincrement())
+  indexId Int
 
   linkType  String // ROOT_DOMAIN, SUB_DOMAIN, OTHER_DOMAIN
   linkValue String // https://~
+
+  webisteIndexingDocument WebsiteIndexingDocument @relation(fields: [indexId], references: [id])
 }
 
 model WebsiteImage {
-  id      Int                     @id
-  indexId WebsiteIndexingDocument @relation(fields: [id], references: [id])
+  id      Int @id @default(autoincrement())
+  indexId Int
 
-  linkType  String // CONTENT, THUMBNAIL, AD_BANNER
-  linkValue String // https://~
+  imageType String // CONTENT_IMAGE, THUMBNAIL_IMAGE, AD_BANNER_IMAGE
+  imageSrc  String // https://~
+  linkType  String? // ROOT_DOMAIN, SUB_DOMAIN, OTHER_DOMAIN
+  linkValue String? // https://~
+
+  webisteIndexingDocument WebsiteIndexingDocument @relation(fields: [indexId], references: [id])
 }
 
 model WebsiteVideo {
-  id      Int                     @id
-  indexId WebsiteIndexingDocument @relation(fields: [id], references: [id])
+  id      Int @id @default(autoincrement())
+  indexId Int
 
-  linkType  String // Content
-  linkValue String // https://~
+  videoType String // video lite-iframe
+  videoSrc  String // https://~
+
+  webisteIndexingDocument WebsiteIndexingDocument @relation(fields: [indexId], references: [id])
 }

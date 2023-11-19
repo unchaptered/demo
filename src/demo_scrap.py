@@ -18,14 +18,14 @@ webScrapperCore = WebScraperCore(ChromeCore(),
                                 WebScrapperLinkFilter(),
                                 DatabaseProvider())
 asyncio.run(webScrapperCore.recursiveScrapWrapper(**{
-    'originUrl':'http://wfwf297.com',
+    'originUrl':'http://wfwf298.com',
     'parentUrl': 'null22',
-    'nowUrl': 'http://wfwf297.com',
+    'nowUrl': 'http://wfwf298.com',
     
-    'nowDepth': 0,
-    'maxDepth': WebScrapperDepthOption.ONE,
+    'nowDepth': 1,
+    'maxDepth': WebScrapperDepthOption.TWO,
     
-    'originDomain': 'wfwf297.com',
+    'originDomain': 'wfwf298.com',
     'domainOption': WebScrapperDomainOption.ONLY_DOMAIN,
 }))
 
@@ -33,7 +33,7 @@ asyncio.run(webScrapperCore.recursiveScrapWrapper(**{
 
 # chromeCore= WebScraperCore()
 # with chromeCore.executeChromeDriver() as driver:
-#     driver.get('https://wfwf297.com/')
+#     driver.get('https://wfwf298.com/')
 #     driver.implicitly_wait(10)
     
 #     originHtml = driver.page_source
